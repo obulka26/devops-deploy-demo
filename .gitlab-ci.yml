@@ -17,7 +17,7 @@ build_image:
     - docker:dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    IMAGE_NAME: olegbulka/priva
+    IMAGE_NAME: olegbulka/private-repo
     IMAGE_TAG: devops-app-example-1.0
   before_script:
     - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
