@@ -1,6 +1,7 @@
 stages:
   - test
-    
+  - build
+
 run_tests:
   stage: test
   image: python:3.12.3-slim
@@ -8,3 +9,18 @@ run_tests:
     - pip install -r requirements-test.txt
   script:
     - python3 -m unittest discover app/tests
+
+build_image:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    IMAGE_NAME: olegbulka/priva
+    IMAGE_TAG: devops-app-example-1.0
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker push $IMAGE_NAME:$IMAGE_TAG
