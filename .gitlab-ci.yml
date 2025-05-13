@@ -1,0 +1,6 @@
+run_tests:
+  image: python:3.12.3-slim
+  before_script:
+    - pip install -r requirements-test.txt
+  script:
+    - python3 -m unittest discover app/tests
