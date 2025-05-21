@@ -8,3 +8,4 @@ venv/
 terraform/terraform.tfstate*
 terraform/.terraform/
 
+ansible/hosts.ini
