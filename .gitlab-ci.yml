@@ -21,6 +21,8 @@ build_image:
     DOCKER_TLS_CERTDIR: "/certs"
     IMAGE_NAME: olegbulka/public-repo
     IMAGE_TAG: devops-app-example-1.0-amd64
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
     - docker buildx build --platform linux/amd64 -t $IMAGE_NAME:$IMAGE_TAG .
     - docker push $IMAGE_NAME:$IMAGE_TAG
