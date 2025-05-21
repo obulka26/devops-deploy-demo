@@ -1,6 +1,8 @@
 stages:
   - test
   - build
+  - terraform
+  - ansible
 
 run_tests:
   stage: test
@@ -17,10 +19,47 @@ build_image:
     - docker:dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    IMAGE_NAME: olegbulka/private-repo
-    IMAGE_TAG: devops-app-example-1.0
-  before_script:
-    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+    IMAGE_NAME: olegbulka/public-repo
+    IMAGE_TAG: devops-app-example-1.0-amd64
   script:
-    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker buildx build --platform linux/amd64 -t $IMAGE_NAME:$IMAGE_TAG .
     - docker push $IMAGE_NAME:$IMAGE_TAG
+
+terraform_deploy:
+  stage: terraform
+  image: hashicorp/terraform:light
+  before_script:
+    - apk add --no-cache openssh
+  script:
+    - cd terraform
+    - terraform init
+    - terraform fmt -check
+    - terraform validate
+    - terraform apply -auto-approve
+    - echo "[web]" > ../ansible/hosts.ini
+    - echo "$(terraform output -raw ec2_ip) ansible_user=ubuntu ansible_ssh_private_key_file=$SSH_KEY_PATH" >> ../ansible/hosts.ini
+  artifacts:
+    paths:
+      - ansible/hosts.ini
+    expire_in: 1 hour
+  only:
+    - main
+  when: manual
+
+ansible_configure:
+  stage: ansible
+  image: python:3.12-slim
+  dependencies:
+    - terraform_deploy
+  before_script:
+    - apt-get update && apt-get install -y sshpass
+    - pip install ansible
+    - echo "$SSH_KEY_B64" | base64 -d > $SSH_KEY_PATH
+    - chmod 600 $SSH_KEY_PATH
+  script:
+    - cd ansible
+    - cat hosts.ini # for debug
+    - ansible-playbook -i hosts.ini playbook.yml
+  only:
+    - main
+  when: manual
