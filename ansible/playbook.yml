@@ -27,7 +27,7 @@
     - name: Run Docker container
       docker_container:
         name: flaskapp
-        image: olegbulka/public_repo:devops-app-example-1.0-amd64
+        image: olegbulka/public-repo:devops-app-example-1.0-amd64
         state: started
         restart_policy: always
         ports:
