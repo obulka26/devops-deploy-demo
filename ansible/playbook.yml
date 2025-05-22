@@ -20,7 +20,7 @@
 
     - name: Pull Docker image
       docker_image:
-        name: olegbulka/public_repo
+        name: olegbulka/public-repo
         tag: devops-app-example-1.0-amd64
         source: pull
 
