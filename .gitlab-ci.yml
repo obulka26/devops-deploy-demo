@@ -58,7 +58,8 @@ ansible_configure:
   before_script:
     - apt-get update && apt-get install -y sshpass
     - pip install ansible
-    - mkdir -p $HOME/.ssh
+    - export SSH_KEY_PATH="$HOME/.ssh/devops-key-eu-central.pem"
+    - mkdir -p "$(dirname "$SSH_KEY_PATH")"
     - echo "$SSH_PRIVATE_KEY" | base64 -d > $SSH_KEY_PATH
     - chmod 600 $SSH_KEY_PATH
   script:
